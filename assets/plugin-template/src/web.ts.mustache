@@ -1,0 +1,10 @@
+import { WebPlugin } from '@jigra/core';
+
+import type { {{{ CLASS }}}Plugin } from './definitions';
+
+export class {{{ CLASS }}}Web extends WebPlugin implements {{{ CLASS }}}Plugin {
+  async echo(options: { value: string }): Promise<{ value: string }> {
+    console.log('ECHO', options);
+    return options;
+  }
+}

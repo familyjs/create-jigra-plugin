@@ -1,0 +1,156 @@
+import Debug from 'debug';
+import { readFileSync, copyFileSync, rmdirSync, writeFileSync } from 'fs';
+import kleur from 'kleur';
+import { resolve } from 'path';
+
+import { emoji, isTTY } from './cli';
+import { exists } from './fs';
+import * as help from './help';
+import { getOptions } from './options';
+import { gatherDetails } from './prompt';
+import { run as runSubprocess } from './subprocess';
+import { JIGRA_VERSION, extractTemplate } from './template';
+
+const debug = Debug('@jigra/create-plugin');
+
+process.on('unhandledRejection', (error) => {
+  process.stderr.write(`ERR: ${error}\n`);
+  process.exit(1);
+});
+
+export const run = async (): Promise<void> => {
+  if (process.argv.find((arg) => ['-h', '-?', '--help'].includes(arg))) {
+    help.run();
+    process.exit();
+  }
+
+  const options = getOptions();
+  debug('options from command-line: %O', options);
+
+  if (Object.values(options).includes(undefined)) {
+    if (isTTY) {
+      debug(`Missing/invalid options. Prompting for user input...`);
+    } else {
+      process.stderr.write(
+        `ERR: Refusing to prompt for missing/invalid options in non-TTY environment.\n` +
+          `See ${kleur.bold('--help')}. Run with ${kleur.bold('--verbose')} for more context.\n`
+      );
+      process.exit(1);
+    }
+  }
+
+  const details = await gatherDetails(options);
+  const dir = resolve(process.cwd(), details.dir);
+
+  if (await exists(dir)) {
+    process.stderr.write(`ERR: Not overwriting existing directory: ${kleur.bold(details.dir)}`);
+    process.exit(1);
+  }
+
+  await extractTemplate(dir, details, 'PLUGIN_TEMPLATE');
+
+  process.stdout.write('Installing dependencies. Please wait...\n');
+
+  const opts = { cwd: details.dir, stdio: 'inherit' } as const;
+
+  try {
+    await runSubprocess('npm', ['install', '--no-package-lock'], opts);
+
+    try {
+      await runSubprocess('npm', ['run', 'fmt'], opts);
+    } catch (e) {
+      process.stderr.write(`WARN: Could not format source files: ${e.message ?? e.stack ?? e}\n`);
+    }
+  } catch (e) {
+    process.stderr.write(`WARN: Could not install dependencies: ${e.message ?? e.stack ?? e}\n`);
+  }
+
+  if (process.platform === 'darwin') {
+    try {
+      await runSubprocess('pod', ['install'], {
+        ...opts,
+        cwd: resolve(details.dir, 'ios'),
+      });
+    } catch (e) {
+      process.stderr.write(`WARN: Could not install pods: ${e.message ?? e.stack ?? e}\n`);
+    }
+  }
+
+  process.stdout.write('\nCreating test application for developing plugin...\n');
+
+  try {
+    await runSubprocess(
+      'npm',
+      ['init', '@jigra/app', 'example', '--', '--name', 'example', '--app-id', 'com.example.plugin'],
+      opts
+    );
+
+    // Add newly created plugin to example app
+    const appPackageJsonStr = readFileSync(resolve(details.dir, 'example', 'package.json'), 'utf8');
+    const appPackageJsonObj = JSON.parse(appPackageJsonStr);
+    appPackageJsonObj.dependencies[details.name] = 'file:..';
+    appPackageJsonObj.dependencies['@jigra/ios'] = JIGRA_VERSION;
+    appPackageJsonObj.dependencies['@jigra/android'] = JIGRA_VERSION;
+
+    writeFileSync(resolve(details.dir, 'example', 'package.json'), JSON.stringify(appPackageJsonObj, null, 2));
+
+    // Install packages and add ios and android apps
+    await runSubprocess('npm', ['install', '--no-package-lock', '--prefix', 'example'], opts);
+
+    // Build newly created plugin and move into the example folder
+    await runSubprocess('npm', ['run', 'build'], opts);
+
+    // remove existing web example
+    const wwwDir = resolve(dir, 'example', 'www');
+    rmdirSync(resolve(wwwDir), { recursive: true });
+
+    // Use www template
+    await extractTemplate(wwwDir, details, 'WWW_TEMPLATE');
+
+    // Copy over built plugin and jigra runtime
+    const builtPluginFile = resolve(details.dir, 'dist', 'plugin.js');
+    copyFileSync(builtPluginFile, resolve(wwwDir, 'js', 'plugin.js'));
+    await runSubprocess('npx', ['jig', 'copy'], {
+      cwd: resolve(opts.cwd, 'example'),
+      stdio: opts.stdio,
+    });
+
+    // Add iOS
+    await runSubprocess('npx', ['jig', 'add', 'ios'], {
+      ...opts,
+      cwd: resolve(details.dir, 'example'),
+    });
+
+    // Add Android
+    await runSubprocess('npx', ['jig', 'add', 'android'], {
+      ...opts,
+      cwd: resolve(details.dir, 'example'),
+    });
+  } catch (e) {
+    process.stderr.write(`WARN: Could not create test application: ${e.message ?? e.stack ?? e}\n`);
+  }
+
+  process.stdout.write('Initializing git...\n');
+
+  try {
+    await runSubprocess('git', ['init'], opts);
+    await runSubprocess('git', ['checkout', '-b', 'main'], opts);
+    await runSubprocess('git', ['add', '-A'], opts);
+    await runSubprocess('git', ['commit', '-m', 'Initial commit', '--no-gpg-sign'], opts);
+  } catch (e) {
+    process.stderr.write(`WARN: Could not initialize git: ${e.message ?? e.stack ?? e}\n`);
+  }
+
+  const tada = emoji('🎉', '*');
+
+  process.stdout.write(`
+${kleur.bold(`${tada} Jigra plugin generated! ${tada}`)}
+
+Next steps:
+  - ${kleur.cyan(`cd ${details.dir}/`)}
+  - Open ${kleur.bold('CONTRIBUTING.md')} to learn about the npm scripts
+  - Continue following these docs for plugin development: ${kleur.bold('https://jigrajs.web.app/docs/plugins/workflow')}
+  - Questions? Feel free to open a discussion: ${kleur.bold('https://github.com/navify/jigra/discussions')}
+  - Learn more about the Jigra Community: ${kleur.bold('https://github.com/jigra-community/welcome')} 💖
+`);
+};

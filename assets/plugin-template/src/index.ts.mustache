@@ -1,0 +1,10 @@
+import { registerPlugin } from '@jigra/core';
+
+import type { {{{ CLASS }}}Plugin } from './definitions';
+
+const {{{ CLASS }}} = registerPlugin<{{{ CLASS }}}Plugin>('{{{ CLASS }}}', {
+  web: () => import('./web').then(m => new m.{{{ CLASS }}}Web()),
+});
+
+export * from './definitions';
+export { {{{ CLASS }}} };

@@ -1,6 +1,6 @@
 {
   "name": "@jigra/create-plugin",
-  "version": "0.9.0-0",
+  "version": "0.9.0",
   "description": "Generate a new Jigra plugin",
   "author": "Navify Team",
   "homepage": "https://jigrajs.web.app",

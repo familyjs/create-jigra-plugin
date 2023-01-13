@@ -11,6 +11,9 @@
   "bin": {
     "create-jigra-plugin": "bin/create-jigra-plugin"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "pack-assets": "node ./scripts/pack-assets.mjs",
     "lint": "npm run eslint && npm run prettier -- --check",

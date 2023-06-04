@@ -2,17 +2,15 @@
   "name": "@jigra/create-plugin",
   "version": "0.9.0",
   "description": "Generate a new Jigra plugin",
-  "author": "Navify Team",
+  "author": "Family Team",
   "homepage": "https://jigrajs.web.app",
   "engines": {
     "node": ">=10.3.0"
   },
   "main": "./dist/index.js",
   "bin": {
-    "create-jigra-plugin": "bin/create-jigra-plugin"
-  },
-  "publishConfig": {
-    "access": "public"
+    "create-jigra-plugin": "bin/create-jigra-plugin",
+    "cjp": "bin/create-jigra-plugin"
   },
   "scripts": {
     "pack-assets": "node ./scripts/pack-assets.mjs",
@@ -39,18 +37,18 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/navify/create-jigra-plugin.git"
+    "url": "git+https://github.com/familyjs/create-jigra-plugin.git"
   },
   "bugs": {
-    "url": "https://github.com/navify/create-jigra-plugin/issues"
+    "url": "https://github.com/familyjs/create-jigra-plugin/issues"
   },
   "license": "MIT",
-  "prettier": "@navify/prettier-config",
+  "prettier": "@familyjs/prettier-config",
   "eslintConfig": {
-    "extends": "@navify/eslint-config/recommended"
+    "extends": "@familyjs/eslint-config/recommended"
   },
   "dependencies": {
-    "@navify/utils-fs": "^3.1.12",
+    "@familyjs/utils-fs": "^3.1.7",
     "debug": "^4.1.1",
     "kleur": "^4.0.3",
     "mustache": "^4.0.1",
@@ -59,8 +57,8 @@
     "tslib": "^2.0.1"
   },
   "devDependencies": {
-    "@navify/eslint-config": "^0.3.0",
-    "@navify/prettier-config": "^2.0.0",
+    "@familyjs/eslint-config": "^0.3.0",
+    "@familyjs/prettier-config": "^2.0.0",
     "@types/debug": "^4.1.5",
     "@types/fs-extra": "^9.0.1",
     "@types/mustache": "^4.0.1",

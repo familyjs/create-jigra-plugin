@@ -7,7 +7,7 @@ import type { OptionValues } from './options';
 
 const MUSTACHE_EXTENSION = '.mustache';
 
-export const JIGRA_VERSION = '^4.0.0';
+export const JIGRA_VERSION = '^5.0.0';
 
 const TEMPLATE_PATH = resolve(__dirname, '..', 'assets', 'plugin-template.tar.gz');
 

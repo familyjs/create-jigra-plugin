@@ -34,7 +34,7 @@
     "verify:ios": "cd ios && pod install && xcodebuild -workspace Plugin.xcworkspace -scheme Plugin -destination generic/platform=iOS && cd ..",
     "verify:android": "cd android && ./gradlew clean build test && cd ..",
     "verify:web": "npm run build",
-    "lint": "npm run eslint && npm run prettier -- --check && npm run swiftlint -- lint",
+    "lint": "npm run eslint && npm run prettier -- --check",
     "fmt": "npm run eslint -- --fix && npm run prettier -- --write && npm run swiftlint -- --fix --format",
     "eslint": "eslint . --ext ts",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
@@ -46,14 +46,14 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
+    "@familyjs/eslint-config": "^0.3.0",
+    "@familyjs/prettier-config": "^2.0.0",
+    "@familyjs/swiftlint": "^1.0.2",
+    "@familyjs/swiftlint-config": "^1.1.3",
     "@jigra/android": "{{{ JIGRA_VERSION }}}",
     "@jigra/core": "{{{ JIGRA_VERSION }}}",
-    "@jigra/docgen": "^0.0.18",
+    "@jigra/docgen": "^0.2.1",
     "@jigra/ios": "{{{ JIGRA_VERSION }}}",
-    "@navify/eslint-config": "^0.3.0",
-    "@navify/prettier-config": "^2.0.0",
-    "@navify/swiftlint-config": "^1.1.2",
-    "@navify/swiftlint": "^1.0.1-beta.0",
     "eslint": "^7.11.0",
     "prettier": "~2.3.0",
     "prettier-plugin-java": "~1.0.2",
@@ -64,10 +64,10 @@
   "peerDependencies": {
     "@jigra/core": "{{{ JIGRA_VERSION }}}"
   },
-  "prettier": "@navify/prettier-config",
-  "swiftlint": "@navify/swiftlint-config",
+  "prettier": "@familyjs/prettier-config",
+  "swiftlint": "@familyjs/swiftlint-config",
   "eslintConfig": {
-    "extends": "@navify/eslint-config/recommended"
+    "extends": "@familyjs/eslint-config/recommended"
   },
   "jigra": {
     "ios": {

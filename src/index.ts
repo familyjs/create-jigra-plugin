@@ -150,7 +150,7 @@ Next steps:
   - ${kleur.cyan(`cd ${details.dir}/`)}
   - Open ${kleur.bold('CONTRIBUTING.md')} to learn about the npm scripts
   - Continue following these docs for plugin development: ${kleur.bold('https://jigrajs.web.app/docs/plugins/workflow')}
-  - Questions? Feel free to open a discussion: ${kleur.bold('https://github.com/navify/jigra/discussions')}
+  - Questions? Feel free to open a discussion: ${kleur.bold('https://github.com/familyjs/jigra/discussions')}
   - Learn more about the Jigra Community: ${kleur.bold('https://github.com/jigra-community/welcome')} 💖
 `);
 };

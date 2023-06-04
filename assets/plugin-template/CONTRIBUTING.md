@@ -16,14 +16,14 @@ This guide provides instructions for contributing to this Jigra plugin.
 1. Install SwiftLint if you're on macOS.
 
     ```shell
-    brew install @navify/swiftlint
+    brew install swiftlint
     ```
 
 ### Scripts
 
 #### `npm run build`
 
-Build the plugin web assets and generate plugin API documentation using [`@jigra/docgen`](https://github.com/navify/jigra-docgen).
+Build the plugin web assets and generate plugin API documentation using [`@jigra/docgen`](https://github.com/familyjs/jigra-docgen).
 
 It will compile the TypeScript code from `src/` into ESM JavaScript in `dist/esm/`. These files are used in apps with bundlers when your plugin is imported.
 
